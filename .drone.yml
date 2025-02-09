@@ -1,16 +1,46 @@
+
 kind: pipeline
 type: docker
-name: default
+name: emr-pipeline
+
+platform:
+  os: linux
+  arch: amd64
 
 steps:
-- name: backend
-  image: golang
-  commands:
-  - go build
-  - go test
+  - name: upload-scripts
+    image: amazon/aws-cli:2.13.32
+    environment:
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_REGION: us-west-2
+      SCRIPTS_BUCKET: my-s3-bucket
+    commands:
+      - aws s3 cp ingestions.py s3://my-s3-bucket/scripts/ingestions.py --region us-west-2
+      - aws s3 cp enrichment.py s3://my-s3-bucket/scripts/enrichment.py --region us-west-2
+      - aws s3 cp requirements.txt s3://my-s3-bucket/scripts/requirements.txt --region us-west-2
 
-- name: frontend
-  image: node
-  commands:
-  - npm install
-  - npm test
+  - name: trigger-emr-step
+    image: amazon/aws-cli:2.13.32
+    environment:
+      CLUSTER_ID: j-WQBMK5I2O7JA
+      SCRIPTS_BUCKET: my-s3-bucket
+      AWS_REGION: us-west-2
+    commands:
+      - |
+        STEP_ID=$(aws emr add-steps \
+          --cluster-id "${CLUSTER_ID}" \
+          --steps '[{"Name": "Run Enrichment Job", "ActionOnFailure": "CONTINUE", "Type": "CUSTOM_JAR", "Jar": "command-runner.jar", "Args": ["spark-submit", "--master", "yarn", "--deploy-mode", "cluster", "s3://my-s3-bucket/scripts/enrichment.py"]}]' \
+          --query 'StepIds[0]' \
+          --output text \
+          --region us-west-2)
+        echo "Step ID: ${STEP_ID}"
+
+trigger:
+  branch:
+    - main
+  event:
+    - push
+  paths:
+    - "scripts/**"
+    - "requirements.txt"
