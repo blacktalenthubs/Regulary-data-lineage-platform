@@ -6,26 +6,21 @@ steps:
   - name: upload-scripts
     image: amazon/aws-cli:2.13.32
     environment:
-      AWS_ACCESS_KEY_ID:
-        from_secret: aws_access_key_id
-      AWS_SECRET_ACCESS_KEY:
-        from_secret: aws_secret_access_key
-      AWS_REGION:
-        from_secret: aws_region
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_REGION: us-west-2
+      SCRIPTS_BUCKET: my-s3-bucket
     commands:
-      - aws s3 cp ingestions.py s3://${SCRIPTS_BUCKET}/${S3_SCRIPTS_PREFIX}/ingestions.py --region ${AWS_REGION}
-      - aws s3 cp enrichment.py s3://${SCRIPTS_BUCKET}/${S3_SCRIPTS_PREFIX}/enrichment.py --region ${AWS_REGION}
-      - aws s3 cp requirements.txt s3://${SCRIPTS_BUCKET}/${S3_SCRIPTS_PREFIX}/requirements.txt --region ${AWS_REGION}
+      - aws s3 cp ingestions.py s3://my-s3-bucket/scripts/ingestions.py --region us-west-2
+      - aws s3 cp enrichment.py s3://my-s3-bucket/scripts/enrichment.py --region us-west-2
+      - aws s3 cp requirements.txt s3://my-s3-bucket/scripts/requirements.txt --region us-west-2
 
   - name: trigger-emr-step
     image: amazon/aws-cli:2.13.32
     environment:
-      CLUSTER_ID:
-        from_secret: emr_cluster_id
-      SCRIPTS_BUCKET:
-        from_secret: scripts_bucket
-      S3_SCRIPTS_PREFIX:
-        from_secret: s3_scripts_prefix
+      CLUSTER_ID: j-WQBMK5I2O7JA
+      SCRIPTS_BUCKET: my-s3-bucket
+      AWS_REGION: us-west-2
     commands:
       - |
         STEP_ID=$(aws emr add-steps \
@@ -40,13 +35,13 @@ steps:
                 \\\"spark-submit\\\",
                 \\\"--master\\\", \\\"yarn\\\",
                 \\\"--deploy-mode\\\", \\\"cluster\\\",
-                \\\"s3://${SCRIPTS_BUCKET}/${S3_SCRIPTS_PREFIX}/enrichment.py\\\"
+                \\\"s3://my-s3-bucket/scripts/enrichment.py\\\"
               ]
             }
           ]" \
           --query 'StepIds[0]' \
           --output text \
-          --region ${AWS_REGION})
+          --region us-west-2)
         echo "Step ID: ${STEP_ID}"
 
 trigger:
