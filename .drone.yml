@@ -36,6 +36,6 @@ trigger:
     - main
   event:
     - push
-  path:
+  paths:
     - "scripts/**"
     - "requirements.txt"
