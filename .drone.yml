@@ -25,20 +25,7 @@ steps:
       - |
         STEP_ID=$(aws emr add-steps \
           --cluster-id "${CLUSTER_ID}" \
-          --steps "[
-            {
-              \\\"Name\\\": \\\"Run Enrichment Job\\\",
-              \\\"ActionOnFailure\\\": \\\"CONTINUE\\\",
-              \\\"Type\\\": \\\"CUSTOM_JAR\\\",
-              \\\"Jar\\\": \\\"command-runner.jar\\\",
-              \\\"Args\\\": [
-                \\\"spark-submit\\\",
-                \\\"--master\\\", \\\"yarn\\\",
-                \\\"--deploy-mode\\\", \\\"cluster\\\",
-                \\\"s3://my-s3-bucket/scripts/enrichment.py\\\"
-              ]
-            }
-          ]" \
+          --steps '[{"Name": "Run Enrichment Job", "ActionOnFailure": "CONTINUE", "Type": "CUSTOM_JAR", "Jar": "command-runner.jar", "Args": ["spark-submit", "--master", "yarn", "--deploy-mode", "cluster", "s3://my-s3-bucket/scripts/enrichment.py"]}]' \
           --query 'StepIds[0]' \
           --output text \
           --region us-west-2)
