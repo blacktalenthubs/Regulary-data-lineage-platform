@@ -16,7 +16,7 @@ services:
       - DRONE_GITHUB_CLIENT_ID=Ov23lijNp3rS7wK8IN8o
       - DRONE_GITHUB_CLIENT_SECRET=ccf501ee775bc97bf82772179fc835b1a179609d
       - DRONE_RPC_SECRET=a4d8d7be647d581a548af4aa99554bab
-      - DRONE_USER_CREATE=username:blacktalenthubs,admin:true
+      - DRONE_USER_CREATE=username:boloftech,admin:true
     restart: always
 
   drone-runner:
