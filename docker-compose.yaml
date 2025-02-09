@@ -10,8 +10,8 @@ services:
     volumes:
       - drone-data:/data
     environment:
-      - DRONE_SERVER_HOST=localhost:8080
-      - DRONE_SERVER_PROTO=http
+      - DRONE_SERVER_HOST=069b-50-24-101-176.ngrok-free.app
+      - DRONE_SERVER_PROTO=https
       - DRONE_DEBUG=true
       - DRONE_GITHUB_CLIENT_ID=Ov23lijNp3rS7wK8IN8o
       - DRONE_GITHUB_CLIENT_SECRET=ccf501ee775bc97bf82772179fc835b1a179609d
